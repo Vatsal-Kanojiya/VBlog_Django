@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title%} new user {% endblock title%}
+
+{% block main %}
+
+<p>{{msg}}</p>
+<div style="align-items: center;justify-content: center;text-align: center;height:700px">
+<br><br><br>
+<form method="POST" action="{% url 'register' %}" >
+    {% csrf_token %}
+        <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+        <label for="inputEmail3" class="col-sm-1 col-form-label">{{form.first_name.label}}</label>
+        <div class="col-sm-4">
+            {{form.first_name}}
+        </div>
+        </div>
+        <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+                <label for="inputEmail3" class="col-sm-1 col-form-label">{{form.last_name.label}}</label>
+                <div class="col-sm-4">
+                    {{form.last_name}}
+                </div>
+            </div>
+        <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+                <label for="inputEmail3" class="col-sm-1 col-form-label">{{form.email.label}}</label>
+                <div class="col-sm-4">
+                    {{form.email}}
+                </div>
+            </div>
+        <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+                <label for="inputEmail3" class="col-sm-1 col-form-label">{{form.mobile.label}}</label>
+                <div class="col-sm-4">
+                    {{form.mobile}}
+                </div>
+            </div>
+        <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+                <label for="inputEmail3" class="col-sm-1 col-form-label">{{form.gender.label}}</label>
+                <div class="col-sm-4">
+                    {{form.gender}}
+                </div>
+            </div>
+    <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+        <label for="inputEmail3" class="col-sm-1 col-form-label">{{form.date_of_birth.label}}</label>
+        <div class="col-sm-4">
+            {{form.date_of_birth}}
+        </div>
+      </div>
+    <div class="row mb-5" style="justify-content: center;display: flex;align-items: center;">
+        <label for="inputPassword3" class="col-sm-1 col-form-label">{{form.password.label}}</label>
+        <div class="col-sm-4">
+            {{form.password}}
+        </div>
+      </div>
+    <div class="row mb-5" style="justify-content: center;display: flex;align-items: center;">
+        <label for="inputPassword3" class="col-sm-1 col-form-label">{{form.password2.label}}</label>
+        <div class="col-sm-4">
+            {{form.password2}}
+        </div>
+      </div>
+
+    <button  class="btn btn-primary" type="submit">Register</button>
+</form>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock main %}
+
+
+
+
+
+

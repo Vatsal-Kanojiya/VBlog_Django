@@ -1,0 +1,164 @@
+
+
+
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title%} user {% endblock title%}
+
+{% block main %}
+
+<div style="align-items: center;justify-content: center;text-align: center;">
+
+<form method="POST" action="{% url 'edituserdone' u %}" enctype="multipart/form-data" >
+    {% csrf_token %}
+
+      <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+      <label class="col-sm-1 col-form-label">{{form.user_name.label}}</label>
+      <div class="col-sm-4">
+          {{form.user_name}}
+      </div>
+      </div>
+
+    <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+      <label class="col-sm-1 col-form-label">{{form.dp.label}}</label>
+      <div class="col-sm-4">
+          {{form.dp}}
+      </div>
+      </div>
+
+    <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+      <label class="col-sm-1 col-form-label">{{form.first_name.label}}</label>
+      <div class="col-sm-4">
+          {{form.first_name}}
+      </div>
+      </div>
+
+      <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+              <label class="col-sm-1 col-form-label">{{form.last_name.label}}</label>
+              <div class="col-sm-4">
+                  {{form.last_name}}
+              </div>
+          </div>
+
+      <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+              <label class="col-sm-1 col-form-label">{{form.email.label}}</label>
+              <div class="col-sm-4">
+                <input class="form-control" type="text" value= {{user.email}} disabled readonly>
+              </div>
+          </div>
+
+      <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+              <label class="col-sm-1 col-form-label">{{form.mobile.label}}</label>
+              <div class="col-sm-4">
+                <input class="form-control" type="text" value= {{user.mobile}} disabled readonly>
+                 
+              </div>
+          </div>
+
+      <div class="row mb-4 "  style="justify-content: center;display: flex;align-items: center;">
+                  
+              <label class="col-sm-1 col-form-label" >{{form.gender.label}}</label>
+            <div class="col-sm-4" >
+                
+                  <!-- {{form.relationship}}    -->
+                  {% for i in form.gender %}
+                  <div class="form-check form-check-inline">{{i}}</div>
+                  {% endfor %}
+                  <!-- {% for i in form.gender.widget.choices %}
+                  <p>{{i}}</p>
+
+                  {% endfor %} 
+                  {% for choice in form.gender %}
+                    <input class="form-check-input" type="radio" name="{{ form.gender.name }}" id="{{ form.gender.label}}_{{ forloop.counter }}" value="{{ choice.value }}" {% if choice.selected %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ form.gender.label}}_{{ forloop.counter }}">{{ choice.label }}</label>
+                    {% endfor %} -->
+                
+              
+
+              <!-- <div class="form-group">
+                <label for="{{ form.gender.id_for_label }}">Gender</label>
+                <div class="form-check">
+                    <div class="row"></div>
+                    {% for choice in form.gender %}
+                    <input class="form-check-input" type="radio" name="gender" id="{{ forloop.counter }}" value="{{ choice.value }}" {% if choice.selected %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ forloop.counter }}">{{ choice.label }}</label>
+                    {% endfor %}
+                    </div>
+                </div> -->
+          </div>
+
+          <div class="row mb-9 "  style="justify-content: center;display: flex;align-items: center;">
+
+            <label class="col-sm-1 col-form-label" >{{form.relationship.label}}</label>
+              <div class="col-sm-4" >
+                  {{form.relationship}} 
+              </div> 
+            <!-- <label class="col-sm-1 col-form-label" >{{form.relationship.label}}</label>
+            <div class="col-sm-7" >
+                
+                  
+                  {% for i in form.relationship %}
+                  <div class="form-check form-check-inline">{{i}}</div>
+                  {% endfor %}
+                
+            </div>  -->
+
+  <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+      <label class="col-sm-1 col-form-label">{{form.date_of_birth.label}}</label>
+      <div class="col-sm-4">
+          {{form.date_of_birth}}
+      </div>
+    </div>
+
+    <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+      <label class="col-sm-1 col-form-label">{{form.bio.label}}</label>
+      <div class="col-sm-4">
+          {{form.bio}}
+      </div>
+  </div>
+
+  <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+    <label class="col-sm-1 col-form-label">{{form.instagram.label}}</label>
+    <div class="col-sm-4">
+        {{form.instagram}}
+    </div>
+</div>
+
+<div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+  <label class="col-sm-1 col-form-label">{{form.facebook.label}}</label>
+  <div class="col-sm-4">
+      {{form.facebook}}
+  </div>
+</div>
+
+<div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+  <label class="col-sm-1 col-form-label">{{form.linked_in.label}}</label>
+  <div class="col-sm-4">
+      {{form.linked_in}}
+  </div>
+</div>
+
+<div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+  <label class="col-sm-1 col-form-label">{{form.website.label}}</label>
+  <div class="col-sm-4">
+      {{form.website}}
+  </div>
+</div>
+
+<div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+  <label class="col-sm-1 col-form-label">{{form.interests.label}}</label>
+  <div class="col-sm-4">
+      {{form.interests}}
+  </div>
+</div>
+
+
+<button  class="btn btn-primary" type="submit">Edit Profile</button>
+</form>
+
+</div>
+
+  {% endblock main %}
+

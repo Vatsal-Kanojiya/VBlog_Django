@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{t}}{% endblock title %}
+
+
+{% block main %}
+
+<div>   <h1>{{t}}</h1>    </div><br>
+<section style="display: flex;justify-content: space-around;">
+{% if l > 0 %}
+
+<section id="mainbar" style="width: 80%;margin-left: 2%;margin-right: 2%;">
+    <section style="display: flex;justify-content: space-between;" >
+        {% for i in bpage %}
+        <div>
+        <a href="{% url 'blog' i.idb %}"  style="text-decoration: none;">
+            <div class="card" >
+                <!-- <img src="..." class="card-img-top" alt="..."> -->
+                <div class="card-body" style="width: 20rem;height: 400px;">
+                  <div style="height: 50px;"><h5 class="card-title">{{i.title}}</h5></div>
+                  
+                  <p class="card-text" style="text-align: right;font-size: small;"><i>--{{i.author.first_name}} {{i.author.first_name}}</i></p>
+                  
+                  <div style="overflow: hidden;height: 75%;text-align: justify;text-indent: 40px;">
+                  <p class="card-text" style="font-size: smaller;">{{i.content}}</p>
+                  </div>
+                </div> 
+              </div>
+        </a>
+        </div>
+        {% endfor  %}
+    </section><br>
+
+</div>
+<br><br>
+<div class="pagination" style="display: flex;align-items: center;text-align: center;justify-content: center;">
+  <span class="step-links">
+      {% if bpage.has_previous %}
+          <button class="btn btn-secondary"><a href="?page=1">&laquo; first</a></button>
+          <button class="btn btn-info"><a href="?page={{ bpage.previous_page_number }}">previous</a></button>
+      {% endif %}
+      <button class="btn btn-primary" style="width: 150px;">current({{ bpage.number }})</span></button>
+      {% if bpage.has_next %}
+          <button class="btn btn-info"><a href="?page={{ bpage.next_page_number }}">next</a></button>
+          <button class="btn btn-secondary"><a href="?page={{ bpage.paginator.num_pages }}">last &raquo;</a></button>
+      {% endif %}
+  </span>
+</div>
+
+
+            {% else %}
+
+            <h1>No Blog related for {{t}}</h1>
+
+            {% endif %}
+
+
+            
+        </section>
+
+        
+
+</div>
+
+
+{% endblock main %}

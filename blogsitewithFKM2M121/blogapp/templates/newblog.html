@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title%}newBlog{% endblock title%}
+
+
+{% block main%}
+<div style="align-items: center;justify-content: center;text-align: center;padding-left: 12%;padding-right: 12%;">
+    <br><br><br>
+    <form method="POST" action="{% url 'createblog' %}">
+        {% csrf_token %}
+        
+        <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+            <label  class="col-sm-1 col-form-label">Title</label>
+            <div class="col-sm-7">
+                {{form.title}}
+            </div>
+          </div>
+          <div id='blogarea' class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+            <div class="col">
+                {{form.content}}
+            </div>
+            <script>
+                const textArea = document.getElementById('blogarea');
+        
+                textArea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+        
+                // Set an initial height based on the default number of rows
+                textArea.style.height = (textArea.scrollHeight) + 'px';
+            </script>
+            {% comment %} <script type="text/javascript">
+                textarea = document.querySelector("#blogarea");
+                textarea.addEventListener('input', autoResize, false);
+         
+                function autoResize() {
+                    this.style.height = 'auto';
+                    this.style.height = this.scrollHeight + 'px';
+                }
+            </script> {% endcomment %}
+          </div>
+          <div class="row mb-4" style="justify-content: center;display: flex;align-items: center;">
+            <label  class="col-sm-1 col-form-label">Genre</label>
+            <div class="col-sm-3">
+                {{form.genre}}
+            </div>
+          </div>
+          <div class="row mb-4" style="justify-content: center;display: flex;align-items: center;">
+            <label class="col-sm-1 col-form-label">Tags</label>
+            <div class="col-sm-7">
+                {{form.tags}}
+            </div>
+          </div>
+        
+
+        <button class="btn btn-primary" type="submit">Create blog</button>
+    </form>
+
+
+</div>
+{% endblock main%}

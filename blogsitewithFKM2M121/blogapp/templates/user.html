@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title%} profile {% endblock title%}
+
+{% block main %}
+
+<p>{{msg}}</p>
+<h2>{{u.first_name}} {{u.last_name}}</h2>
+<div class="container" style="margin-right: 10%;margin-left: 10%;width: 80%;">
+  <div class="row">
+    <div class="col-1">
+      
+      
+    </div>
+    <div class="col-8">
+      <table class="table table-dark" >
+        <thead>
+          <tr>
+            <th scope="col" colspan="2">      </th>
+          </tr>
+        </thead>
+        <tbody style="text-align: left;">
+          <tr>
+            <td >User Name</td>
+            <td>{{u.user_name}}</td>
+          </tr>
+          {% if us.status or u.idu == us.idu %}
+          <tr>
+            <td >Email </td>
+            <td>
+              {{u.email}} 
+              {% if u.status == False %}
+              <button class="btn btn-primary"><a href="{% url 'emailconfirmation' u.idu %}">Validate</a></button>
+            {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td >Mobile </td>
+            <td>{{u.mobile}}</td>
+          </tr>
+          <tr>
+            <td >Gender</td>
+            <td>{{u.gender}}</td>
+          </tr>
+          <tr>
+            <td >Date of Birth</td>
+            <td>{{u.date_of_birth}}</td>
+          </tr>
+          <tr>
+            <td >Bio</td>
+            <td>{{u.bio}}</td>
+          </tr>
+          <tr>
+            <tr>
+              <td >Relationship Status</td>
+              <td>{{u.relationship}}</td>
+            </tr>
+            <tr>
+            <td >Interests</td>
+            <td>{{u.interests}}</td>
+          </tr>
+          <tr>
+            <td >Instagram</td>
+            <td>{{u.instagram}}</td>
+          </tr>
+          
+          <tr>
+            <td >Facebook</td>
+            <td>{{u.facebook}}</td>
+          </tr>
+          
+          <tr>
+            <td >LinkedIn</td>
+            <td>{{u.linked_in}}</td>
+          </tr>
+          <tr>
+            <td >Website</td>
+            <td>{{u.website}}</td>
+          </tr>
+           <!-- <tr>
+            <td ></td>
+            <td>{{u.}}</td>
+          </tr>
+          <tr>
+            <td ></td>
+            <td>{{u.}}</td>
+          </tr>
+          <tr>
+            <td ></td>
+            <td>{{u.}}</td>
+          </tr>
+          <tr>
+            <td ></td>
+            <td>{{u.}}</td>
+          </tr>   -->
+          {%endif%}
+          
+        </tbody>
+      </table>
+      {% if u.idu == us.idu %}
+      <p style="text-align: right;margin-right: 0%;margin-left: 10%;"><button class="btn btn-secondary"><a href="{% url 'edituser' u.idu %}">Edit Profile</a></button></p>
+      {% endif %}   
+    </div>
+    <div class="col-3">
+      <div>
+        {% if u.dp %}
+               <img src="{{u.dp.url}}" width="150px" height="200px" alt="dp">
+               {% else %}
+               <img src="{% static 'media/defaultprofile.PNG' %}" width="150px" height="200px" alt="dp">
+               {% endif %}
+               <br>
+               <div>
+               <a href=""></a>
+               <a href=""></a>
+               <a href=""></a>
+               <a href=""></a></div><br>
+               <div>
+                {% if u.idu != us.idu  and us.status %}
+                {% if u not in us.follows.all %}
+                <button class="btn btn-primary btn-sm" type="submit"><a href="{% url 'follow' u.idu %}">Subscribe</a></button>
+                {% else %}
+                <button class="btn btn-primary btn-sm" type="submit"><a href="{% url 'unfollow' u.idu %}">Unsubscribe</a></button>
+                <button class="btn btn-primary btn-sm" type="submit"><a href="">Notification</a></button>
+               {% endif %}
+                {% endif %}
+              </div>
+      </div>
+      
+      <br>
+      {% if not u.vip %}
+      <button class="btn btn-success btn-sm" type="submit"><a href="{% url 'smartblogupgrade' u.idu %}">Upgade to SmartBlog</a></button>
+      {% endif %}  
+      <br><br>
+
+
+
+      <div>
+        
+        <h3>Subscriptions</h3>
+        {% if us.status or u.idu == us.idu %}
+      {% for i in u.follows.all|slice:5 %}
+      <p><a href="{% url 'userprofile' i.idu %}">{{i.first_name|lower}}</a></p>
+      {% endfor %}
+      <button class="btn btn-primary" type="submit"><a href="{% url 'profilelist' 'fl' %}">More</a></button>
+        {%endif%}
+      </div>
+
+      <br><br>
+      <div>
+        <h3>Subscribers</h3>
+        {% if us.status or u.idu == us.idu %}
+      {% for j in u.followed_by.all|slice:5 %}
+      <p><a href="{% url 'userprofile' j.idu %}">{{j.first_name|lower}}</a></p>
+
+      {% endfor %}
+      <button class="btn btn-primary" type="submit"><a href="{% url 'profilelist' 'fb' %}">More</a></button>
+      {%endif%}
+      </div>
+      
+  
+    </div>
+    <div class="col-3">
+      
+      
+    </div>
+  </div>
+</div>
+
+
+ 
+{% endblock main %}
+
+
+
+
+
+

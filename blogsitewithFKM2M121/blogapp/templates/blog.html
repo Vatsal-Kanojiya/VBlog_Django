@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}blog{% endblock title %}
+
+
+{% block main %}
+
+<div style="align-items: center;justify-content: center;text-align: center;padding-left: 8%;padding-right: 8%;">
+<br><br>
+<div>   
+    <h1>{{ b1.title }}</h1>   
+</div> 
+<br>
+<div >   
+
+    <section >
+        <div style="text-align: justify;">
+            {{ b1.content }}
+
+        </div>
+        
+
+    <br>
+
+        <ul style="display: flex;list-style-type: none;justify-content: space-around;"> 
+            <li><a href="{{ i }}">{{b1.author.first_name}} {{b1.author.first_name}}</a></li>
+            <li><a href="{{ i }}">{{b1.genre}}</a></li>
+            <li><a href="{{ i }}">{{b1.tags}}</a></li>
+            <li>{{b1.date_of_publish}}</li>
+        </ul>
+        <br>
+        <ul style="display: flex;list-style-type: none;justify-content: space-around;"> 
+            
+            <li><button>{% if u.status %}
+                <a href="{% url 'like' b1.idb %}">Like</a>
+                {%else%}
+                <p>Like</p>
+                {%endif %}
+            </button>
+            </li>
+
+            <li>Likes: {{b1.likes}}</li>
+            <li>Views: {{b1.views}}</li>
+            <li>Comments: {{cc}}</li>
+
+        </ul>
+        <div>
+            {% for i in c1 %}
+
+            <div class="card w-50" style="margin-left: 20%;">
+                <div class="card-body">
+                  <!-- <h5 class="card-title">Card title</h5> -->
+                  <div style="display: flex;justify-content: space-between;"><p class="card-text">{{i.idu.first_name}} {{i.idu.last_name}}</p><span> {{i.date_of_comment}}</span></div>
+                  <p class="card-text" style="text-align: left;">{{i.comment_content}}</p>
+                  <!-- <a href="#" class="btn btn-primary">Button</a> -->
+                </div>
+              </div>
+              <br>
+
+            <!-- <p style="text-indent: 20px;text-align: justify;"></p> -->
+
+            {% endfor %}
+        </div>
+        <br><br>
+        {% if u.status %}
+        <div style="text-align: left; margin-left: 20%;margin-right: 29%;">
+            <form method="POST" action="{% url 'comment' b1.idb %}">
+                {% csrf_token %}
+                {{formc.as_p}} 
+                <button  type="submit">Comment</button>
+            </form>
+        </div>
+        {% endif %}
+        
+    </section>
+
+    <section>
+
+        <section>
+            <h3>Recent Blogs</h3>
+
+
+
+
+            <button><a href="{{ i }}">more</a></button>
+        </section>
+
+        <section>
+            <h3>Top/Popular Blogs</h3>
+
+
+
+
+            <button><a href="{{ i}}">more</a></button>
+        </section>
+
+        <section>
+            <h3>Misc Blogs</h3>
+
+
+
+
+            <button><a href="{{i }}">more</a></button>
+        </section>
+    </section>
+</div>
+</div>
+
+
+{% endblock main %}

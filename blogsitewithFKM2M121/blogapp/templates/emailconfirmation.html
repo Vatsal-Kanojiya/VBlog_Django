@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block titlev%} emailconfirmation {% endblock titlev%} 
+
+{% block main %}
+<div style="height:700px;border: 2px solid white;">
+    <br><br><br>
+
+<form  method="POST" action="{% url 'emailconfirmation' u %}"  >
+{% csrf_token %}
+<div >
+    <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
+        <input type="text" class="form-control" name="otp" value="{{otp}}" placeholder="otp" hidden>
+        <label for="inputEmail3" class="row-lg-1 col-form-label">
+            Please enter the otp you recieved at your email to activate your account</label><br>
+        <input type="text" class="form-control" style="width: 100px;" name="otpconf" placeholder="otp">
+        
+        
+      </div>
+      
+
+    <button class="btn btn-primary mb-3" type="submit">Confirm Email ID</button>
+    
+</div>
+</form>
+</div>
+{% endblock main %}

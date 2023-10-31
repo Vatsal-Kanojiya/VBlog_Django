@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block titlev%} login {% endblock titlev%} 
+
+{% block main %}
+<section style="align-items: center;text-align: center;justify-content: center;">
+    {% if  status == 'SUCCESS' %}
+    <br><h1>Congratulations! {{su.first_name}}{{su.last_name}} You are a Smart Blogger Now . . .</h1>
+    <br>
+    <table class="table table-bordered" style="width: 60%;margin-left: 20%;">
+        <thead>
+          <tr>
+            <th scope="col" colspan="2">Transaction Reciept</th>
+          </tr>
+        </thead>
+        <tbody style="text-align: left;">
+            <tr>
+                <th scope="row">Payee</th>
+                <td>{{su.first_name}}{{su.last_name}}</td>
+              </tr>
+          <tr>
+            <th scope="row">Order ID</th>
+            <td>{{oid}}</td>
+          </tr>
+          <tr>
+            <th scope="row">Amount</th>
+            <td>{{t1.amount}}</td>
+          </tr>
+          <tr>
+            <th scope="row">Payment ID</th>
+            <td>{{pid}}</td>
+          </tr>
+          <tr>
+            <th scope="row">Payment Signature</th>
+            <td>{{psg}}</td>
+          </tr>
+          <tr>
+            <th scope="row">Payment Status</th>
+            <td>{{status}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <br><br><br>
+
+{% else  %}
+<h1>
+Sorry! {{su.first_name}}{{su.last_name}}, your transaction was not successful . . . . Please try again later!
+</h1>
+{% endif %}
+
+
+
+</section>
+
+
+{% endblock main %}

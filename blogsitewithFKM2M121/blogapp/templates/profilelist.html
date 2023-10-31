@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} profile list {% endblock title %}
+
+
+{% block main %}
+
+<div>
+<h1>{{ttl}}</h1>
+
+<div class="container" style=" display: grid;grid-template-columns: 1fr 1fr;;justify-content: space-around;margin-right: 10%;margin-left: 10%;width: 80%;">
+  
+
+{% for i in upage %}
+<a href="{% url 'userprofile' i.idu %}">
+<div class="card mb-3" style="max-width: 540px;">
+    <div class="row g-0">
+      <div class="col-md-4">
+        {% if u.dp %}
+               <img src="{{u.dp.url}}" class="img-fluid rounded-start" alt="dp">
+               {% else %}
+               <img src="{% static 'media/defaultprofile.PNG' %}" class="img-fluid rounded-start" alt="dp">
+               {% endif %}
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">{{ i.first_name }} {{ i.last_name }}</h5>
+          <p class="card-text">{{ i.bio }}</p>
+          <p class="card-text"><small class="text-body-secondary">{{i.status}} {{i.last_login}}</small></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</a>
+
+{% endfor %}
+
+</div>
+<div class="pagination" style="display: flex;align-items: center;text-align: center;justify-content: center;">
+  <span class="step-links">
+      {% if upage.has_previous %}
+          <button class="btn btn-secondary"><a href="?page=1">&laquo; first</a></button>
+          <button class="btn btn-info"><a href="?page={{ upage.previous_page_number }}">previous</a></button>
+      {% endif %}
+      <button class="btn btn-primary" style="width: 150px;">current({{ upage.number }})</span></button>
+      {% if upage.has_next %}
+          <button class="btn btn-info"><a href="?page={{ upage.next_page_number }}">next</a></button>
+          <button class="btn btn-secondary"><a href="?page={{ upage.paginator.num_pages }}">last &raquo;</a></button>
+      {% endif %}
+  </span>
+</div>
+
+
+
+{% if plo %}
+<h1>Subscripions</h1>
+<div class="container" style=" display: grid;grid-template-columns: 1fr 1fr;;justify-content: space-around;margin-right: 10%;margin-left: 10%;width: 80%;">
+  
+    {% for i in plo %}
+    <a href="{% url 'userprofile' i.idu %}">
+    <div class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+          <div class="col-md-4">
+            {% if u.dp %}
+                   <img src="{{u.dp.url}}" class="img-fluid rounded-start" alt="dp">
+                   {% else %}
+                   <img src="{% static 'media/defaultprofile.PNG' %}" class="img-fluid rounded-start" alt="dp">
+                   {% endif %}
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{ i.first_name }} {{ i.last_name }}</h5>
+              <p class="card-text">{{ i.bio }}</p>
+              <p class="card-text"><small class="text-body-secondary">{{i.status}} {{i.last_login}}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+    
+    
+    
+    {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+
+
+{% endblock main %}
