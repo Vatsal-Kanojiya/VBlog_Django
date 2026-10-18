@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser,PermissionsMixin
 from django.utils.text import slugify
 from blogapp.manager import UserManager
+from blogapp import richtext
 
 
 def validatedate(value):
@@ -95,7 +96,8 @@ class blog(models.Model):
 
     idb=models.CharField(max_length=10,default='ooo')
     title= models.CharField(max_length=50,null=False,validators=[MinLengthValidator(5),MaxLengthValidator(50)])
-    content= models.TextField(null=False,validators=[MinLengthValidator(3000),MaxLengthValidator(10000)])
+    content= models.TextField(null=False)  # cleaned editor HTML, the source for editing
+    content_html= models.TextField(blank=True, editable=False)  # content with highlighted code, for reading
     author= models.ForeignKey(bloguser,on_delete=models.CASCADE)
     date_of_publish= models.DateTimeField()
     genre= models.CharField(max_length=30,null=False,validators=[MaxLengthValidator(20)])
@@ -107,6 +109,16 @@ class blog(models.Model):
     views=models.IntegerField(validators=[MinValueValidator(0)])
     #comments=models.ForeignKey(validators=[MinValueValidator(0)])
     slug=models.SlugField(default='slugdefault',null=False,blank=True)
+
+    def save(self, *args, **kwargs):
+        self.content = richtext.clean_html(self.content)
+        self.content_html = richtext.render_html(self.content)
+        super().save(*args, **kwargs)
+
+    @property
+    def excerpt(self):
+        text = ' '.join(richtext.plain_text(self.content).split())
+        return text if len(text) <= 220 else text[:220].rsplit(' ', 1)[0] + '…'
 
 
 

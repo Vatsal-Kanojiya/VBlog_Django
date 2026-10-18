@@ -11,6 +11,10 @@ from django.conf import settings
 import razorpay
 from django.contrib.sites.shortcuts import get_current_site
 from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import PermissionDenied
+from django.utils import timezone
+from django.db.models import F
+from .richtext import LANGUAGES
 
 
 def home(request):
@@ -214,11 +218,11 @@ def smartblogsuccess(request):
 
 def blogview(request,b):
     u=request.user
-    b1=blog.objects.get(idb=b)
+    b1=get_object_or_404(blog,idb=b)
+    blog.objects.filter(pk=b1.pk).update(views=F('views')+1)  # no full save: it would re-render the body
     b1.views+=1
-    b1.save()
-    c1=comment.objects.filter(idb=b)
-    cc=comment.objects.filter(idb=b).count()
+    c1=comment.objects.filter(idb=b1)
+    cc=c1.count()
     formc=commentform()
     
     return render(request,'blog.html',{'u':u,'b1':b1,'c1':c1,'cc':cc,'formc':formc})
@@ -226,26 +230,40 @@ def blogview(request,b):
 @login_required(login_url='userlogin',)
 def newblog(request):
     form=blogform()
-    return render(request,'newblog.html',{'form':form})
+    return render(request,'newblog.html',{'form':form,'languages':LANGUAGES})
+
 
 @login_required(login_url='userlogin')
 def createblog(request):
-    from datetime import datetime
+    if request.method!='POST':
+        return redirect('newblog')
     form=blogform(request.POST)
-    bl=blog.objects.all()
-    l=1+len(bl)
-    au=request.user
     if form.is_valid():
         f1=form.cleaned_data
-        b1=blog(idb=l,title=f1['title'],content=f1['content'],genre=f1['genre'],
-                author=au,date_of_publish=datetime.now(),likes=0,views=0)
-        b1.save()
+        b1=blog.objects.create(title=f1['title'],content=f1['content'],genre=f1['genre'],
+                author=request.user,date_of_publish=timezone.now(),likes=0,views=0)
+        b1.idb=str(b1.pk)
+        b1.save(update_fields=['idb'])
         b1.tags.set(Tag.get_or_create_many(f1['tags']))
-        b1=blog.objects.get(idb=l)
-        c1=comment.objects.filter(idb=l)
-        formc=commentform()
-        return render(request,'blog.html',{'b1':b1,'c1':c1,'formc':formc})
-    return render(request,'newblog.html',{'form':form})
+        return redirect('blog',b=b1.idb)
+    return render(request,'newblog.html',{'form':form,'languages':LANGUAGES})
+
+
+@login_required(login_url='userlogin')
+def editblog(request,b):
+    b1=get_object_or_404(blog,idb=b)
+    if b1.author_id!=request.user.pk:
+        raise PermissionDenied
+    if request.method=='POST':
+        form=blogform(request.POST,instance=b1)
+        if form.is_valid():
+            form.save()
+            b1.tags.set(Tag.get_or_create_many(form.cleaned_data['tags']))
+            return redirect('blog',b=b1.idb)
+    else:
+        form=blogform(instance=b1,initial={'tags':', '.join(t.name for t in b1.tags.all())})
+    return render(request,'newblog.html',{'form':form,'languages':LANGUAGES,'b1':b1})
+
 
 @login_required(login_url='userlogin')
 def like(request,b):

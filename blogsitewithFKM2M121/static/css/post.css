@@ -1,0 +1,121 @@
+/* Reading and writing styles for post bodies (post page + editor) */
+
+.post-body,
+.post-body *,
+.editor,
+.editor * {
+  background-color: transparent;
+}
+
+.post-body,
+.editor .ProseMirror {
+  max-width: 46rem;
+  margin: 0 auto;
+  text-align: left;
+  font-size: 1.08rem;
+  line-height: 1.75;
+}
+
+.post-body h2, .editor h2 { font-size: 1.6rem; margin: 2rem 0 .75rem; }
+.post-body h3, .editor h3 { font-size: 1.25rem; margin: 1.5rem 0 .5rem; }
+.post-body p, .editor p { margin: 0 0 1rem; }
+.post-body a, .editor a { color: #8ab4f8; text-decoration: underline; }
+.post-body blockquote, .editor blockquote {
+  border-left: 3px solid #6c757d;
+  margin: 1.25rem 0;
+  padding: .25rem 0 .25rem 1rem;
+  color: #ced4da;
+}
+.post-body img, .editor img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.25rem auto;
+  border-radius: 6px;
+}
+.editor img.ProseMirror-selectednode { outline: 3px solid #0d6efd; }
+
+.post-body :not(pre) > code,
+.editor :not(pre) > code {
+  background-color: #2b2b2b;
+  padding: .1rem .35rem;
+  border-radius: 4px;
+  font-size: .92em;
+}
+
+.post-body pre,
+.editor pre {
+  position: relative;
+  background-color: #272822;
+  color: #f8f8f2;
+  padding: 1rem 1.1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: .9rem;
+  line-height: 1.55;
+  margin: 1.25rem 0;
+}
+.post-body pre[data-lang]::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: .35rem;
+  right: .6rem;
+  font: .7rem/1 system-ui, sans-serif;
+  color: #a6a28c;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.post-body pre *, .editor pre * { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+.post-cover {
+  display: block;
+  width: 100%;
+  max-width: 56rem;
+  max-height: 26rem;
+  object-fit: cover;
+  margin: 0 auto 1.5rem;
+  border-radius: 10px;
+}
+
+/* Editor */
+.editor {
+  border: 1px solid #495057;
+  border-radius: 8px;
+  text-align: left;
+}
+.editor .ProseMirror {
+  min-height: 24rem;
+  padding: 1rem 1.25rem;
+  outline: none;
+}
+.editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #6c757d;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.editor-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  padding: .5rem;
+  border-bottom: 1px solid #495057;
+  background-color: #212529 !important;
+}
+.editor-toolbar button,
+.editor-toolbar select {
+  background-color: #343a40;
+  color: #f8f9fa;
+  border: 1px solid #495057;
+  border-radius: 4px;
+  padding: .2rem .55rem;
+  font-size: .9rem;
+}
+.editor-toolbar[hidden] { display: none; }
+.editor-toolbar button.is-active { background-color: #0d6efd; border-color: #0d6efd; }
+.editor-toolbar .sep { width: 1px; background-color: #495057 !important; margin: 0 .25rem; }
+.editor-status { min-height: 1.4rem; font-size: .85rem; color: #adb5bd; text-align: left; }

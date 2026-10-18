@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}blog{% endblock title %}
+{% block title %}{{ b1.title }}{% endblock title %}
+{% block head %}<link rel="stylesheet" href="{% static 'css/post.css' %}"><link rel="stylesheet" href="{% static 'css/pygments.css' %}">{% endblock head %}
 
 
 {% block main %}
@@ -9,22 +10,22 @@
 <div style="align-items: center;justify-content: center;text-align: center;padding-left: 8%;padding-right: 8%;">
 <br><br>
 <div>   
-    <h1>{{ b1.title }}</h1>   
+    <h1>{{ b1.title }}</h1>
+    {% if u.is_authenticated and b1.author_id == u.pk %}<a class="btn btn-sm btn-outline-light" href="{% url 'editblog' b1.idb %}">Edit post</a>{% endif %}
 </div> 
 <br>
 <div >   
 
     <section >
-        <div style="text-align: justify;">
-            {{ b1.content }}
-
-        </div>
+        <article class="post-body">
+            {{ b1.content_html|safe }}
+        </article>
         
 
     <br>
 
         <ul style="display: flex;list-style-type: none;justify-content: space-around;"> 
-            <li><a href="{{ i }}">{{b1.author.first_name}} {{b1.author.first_name}}</a></li>
+            <li><a href="{{ i }}">{{b1.author.first_name}} {{b1.author.last_name}}</a></li>
             <li><a href="{{ i }}">{{b1.genre}}</a></li>
             <li>{% for t in b1.tags.all %}<a class="badge text-bg-secondary me-1" href="{% url 'tagged' t.slug %}">#{{ t.name }}</a>{% endfor %}</li>
             <li>{{b1.date_of_publish}}</li>

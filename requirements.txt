@@ -1,4 +1,6 @@
 Django==4.2.30
 django-environ==0.14.0
+nh3==0.3.7
 pillow==12.3.0
+Pygments==2.21.0
 razorpay==2.0.1

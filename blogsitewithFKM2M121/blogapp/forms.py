@@ -2,6 +2,7 @@ from django.forms import ModelForm,Form
 from django import forms 
 from .models import blog,comment,bloguser,Tag
 from django.forms.widgets import ClearableFileInput
+from . import richtext
 
 
 class blogform(ModelForm):
@@ -12,8 +13,8 @@ class blogform(ModelForm):
     title=forms.CharField(label='',
         widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':''})
     )
-    content=forms.CharField(label='',
-        widget=forms.Textarea(attrs={'class':'form-control','placeholder': 'start your blog . . .'})
+    content=forms.CharField(label='',max_length=200_000,
+        widget=forms.Textarea(attrs={'class':'form-control','placeholder': 'start your blog . . .','rows':'16'})
     )
     genre=forms.CharField(label='',
         widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':''})
@@ -22,6 +23,15 @@ class blogform(ModelForm):
         help_text=f'Comma separated, up to {Tag.MAX_PER_POST}.',
         widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'django, orm, testing'})
     )
+
+    def clean_content(self):
+        clean = richtext.clean_html(self.cleaned_data['content'])
+        length = len(richtext.plain_text(clean))
+        if length < 3000:
+            raise forms.ValidationError(f'A post needs at least 3000 characters (this one has {length}).')
+        if length > 10000:
+            raise forms.ValidationError(f'A post can have at most 10000 characters (this one has {length}).')
+        return clean
 
     def clean_tags(self):
         names = Tag.parse(self.cleaned_data['tags'])

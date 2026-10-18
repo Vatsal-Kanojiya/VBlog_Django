@@ -1,63 +1,77 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title%}newBlog{% endblock title%}
+{% block title%}{% if b1 %}Edit: {{ b1.title }}{% else %}New post{% endif %}{% endblock title%}
+{% block head %}<link rel="stylesheet" href="{% static 'css/post.css' %}">{% endblock head %}
 
 
 {% block main%}
-<div style="align-items: center;justify-content: center;text-align: center;padding-left: 12%;padding-right: 12%;">
-    <br><br><br>
-    <form method="POST" action="{% url 'createblog' %}">
+<div style="padding-left: 8%;padding-right: 8%;">
+    <br><br>
+    <h1 class="mb-4">{% if b1 %}Edit post{% else %}New post{% endif %}</h1>
+    <form method="POST" action="{% if b1 %}{% url 'editblog' b1.idb %}{% else %}{% url 'createblog' %}{% endif %}">
         {% csrf_token %}
-        
-        <div class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
-            <label  class="col-sm-1 col-form-label">Title</label>
+        {{ form.non_field_errors }}
+
+        <div class="row mb-4" style="justify-content: center;align-items: center;">
+            <label for="{{ form.title.id_for_label }}" class="col-sm-1 col-form-label">Title</label>
             <div class="col-sm-7">
                 {{form.title}}
+                {{ form.title.errors }}
             </div>
-          </div>
-          <div id='blogarea' class="row mb-4"  style="justify-content: center;display: flex;align-items: center;">
-            <div class="col">
-                {{form.content}}
+        </div>
+
+        <div class="mb-2" data-editor>
+            <div class="editor-toolbar" role="toolbar" aria-label="Formatting" hidden>
+                <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+                <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+                <button type="button" data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+                <button type="button" data-cmd="strike" title="Strikethrough"><s>S</s></button>
+                <span class="sep"></span>
+                <button type="button" data-cmd="h2" title="Heading">H2</button>
+                <button type="button" data-cmd="h3" title="Subheading">H3</button>
+                <button type="button" data-cmd="bulletList" title="Bullet list">• List</button>
+                <button type="button" data-cmd="orderedList" title="Numbered list">1. List</button>
+                <button type="button" data-cmd="blockquote" title="Quote">❝ Quote</button>
+                <button type="button" data-cmd="hr" title="Divider">―</button>
+                <span class="sep"></span>
+                <button type="button" data-cmd="link" title="Link">Link</button>
+                <button type="button" data-cmd="code" title="Inline code">`code`</button>
+                <button type="button" data-cmd="codeBlock" title="Code block">{ } Code block</button>
+                <select data-language aria-label="Code block language">
+                    {% for value, label in languages.items %}<option value="{{ value }}"{% if value == 'python' %} selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+                <span class="sep"></span>
+                <button type="button" data-cmd="undo" title="Undo (Ctrl+Z)">↶</button>
+                <button type="button" data-cmd="redo" title="Redo (Ctrl+Shift+Z)">↷</button>
             </div>
-            <script>
-                const textArea = document.getElementById('blogarea');
-        
-                textArea.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = (this.scrollHeight) + 'px';
-                });
-        
-                // Set an initial height based on the default number of rows
-                textArea.style.height = (textArea.scrollHeight) + 'px';
-            </script>
-            {% comment %} <script type="text/javascript">
-                textarea = document.querySelector("#blogarea");
-                textarea.addEventListener('input', autoResize, false);
-         
-                function autoResize() {
-                    this.style.height = 'auto';
-                    this.style.height = this.scrollHeight + 'px';
-                }
-            </script> {% endcomment %}
-          </div>
-          <div class="row mb-4" style="justify-content: center;display: flex;align-items: center;">
-            <label  class="col-sm-1 col-form-label">Genre</label>
+            <div class="editor-mount"></div>
+            {{form.content}}
+        </div>
+        <div class="editor-status mb-1" aria-live="polite"></div>
+        <div class="text-danger text-start mb-3">{{ form.content.errors }}</div>
+
+        <div class="row mb-4" style="justify-content: center;align-items: center;">
+            <label for="{{ form.genre.id_for_label }}" class="col-sm-1 col-form-label">Genre</label>
             <div class="col-sm-3">
                 {{form.genre}}
+                {{ form.genre.errors }}
             </div>
-          </div>
-          <div class="row mb-4" style="justify-content: center;display: flex;align-items: center;">
-            <label class="col-sm-1 col-form-label">Tags</label>
-            <div class="col-sm-7">
+        </div>
+        <div class="row mb-4" style="justify-content: center;align-items: center;">
+            <label for="{{ form.tags.id_for_label }}" class="col-sm-1 col-form-label">Tags</label>
+            <div class="col-sm-7 text-start">
                 {{form.tags}}
+                <small class="text-secondary">{{ form.tags.help_text }}</small>
+                {{ form.tags.errors }}
             </div>
-          </div>
-        
+        </div>
 
-        <button class="btn btn-primary" type="submit">Create blog</button>
+        <div class="text-center">
+            <button class="btn btn-primary" type="submit">{% if b1 %}Save changes{% else %}Publish{% endif %}</button>
+            {% if b1 %}<a class="btn btn-outline-light ms-2" href="{% url 'blog' b1.idb %}">Cancel</a>{% endif %}
+        </div>
     </form>
-
-
 </div>
+<script type="module" src="{% static 'js/editor.js' %}"></script>
 {% endblock main%}
