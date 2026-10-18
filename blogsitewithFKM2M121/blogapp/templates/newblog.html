@@ -23,7 +23,7 @@
 
         <div class="row mb-4" style="justify-content: center;align-items: center;">
             <label for="{{ form.cover.id_for_label }}" class="col-sm-1 col-form-label">Cover</label>
-            <div class="col-sm-7 text-start">
+            <div class="col-sm-7 text-start" style="overflow-wrap: anywhere;">
                 {{form.cover}}
                 <small class="text-secondary">Optional. JPEG, PNG, WebP or GIF, up to 5 MB.</small>
                 {{ form.cover.errors }}
