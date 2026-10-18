@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import blog,comment,bloguser,smarttransaction
+from .models import blog,comment,bloguser,smarttransaction,Tag
 # Register your models here.
 
 # class BlogusersimpleAdmin(admin.ModelAdmin):
@@ -40,3 +40,10 @@ class SmarttransactionAdmin(admin.ModelAdmin):
     list_display_links=('razor_pay_order_id',)
 admin.site.register(smarttransaction,SmarttransactionAdmin)
 
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    prepopulated_fields={'slug':('name',)}
+    list_display=('name','slug')
+    search_fields=('name',)

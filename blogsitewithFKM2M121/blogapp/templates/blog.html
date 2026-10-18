@@ -26,7 +26,7 @@
         <ul style="display: flex;list-style-type: none;justify-content: space-around;"> 
             <li><a href="{{ i }}">{{b1.author.first_name}} {{b1.author.first_name}}</a></li>
             <li><a href="{{ i }}">{{b1.genre}}</a></li>
-            <li><a href="{{ i }}">{{b1.tags}}</a></li>
+            <li>{% for t in b1.tags.all %}<a class="badge text-bg-secondary me-1" href="{% url 'tagged' t.slug %}">#{{ t.name }}</a>{% endfor %}</li>
             <li>{{b1.date_of_publish}}</li>
         </ul>
         <br>

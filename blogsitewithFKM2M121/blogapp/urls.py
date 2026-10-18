@@ -30,6 +30,7 @@ urlpatterns = [
     #path('time/<str:dt>/', views.time,name='time'),
     #path('authorfilter/<str:a>/', views.authorfilter,name='authorfilter'),
     path('tag', views.tag,name='tag'),
+    path('tag/<slug:slug>/', views.tagged,name='tagged'),
     
     path('blog/<str:b>/', views.blogview,name='blog'),
     

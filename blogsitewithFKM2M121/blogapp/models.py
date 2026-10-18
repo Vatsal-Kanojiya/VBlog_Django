@@ -3,6 +3,7 @@ from django.core.validators import MaxValueValidator,MinValueValidator,MaxLength
 from datetime import date
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser,PermissionsMixin
+from django.utils.text import slugify
 from blogapp.manager import UserManager
 
 
@@ -54,6 +55,42 @@ class bloguser(AbstractUser):
     REQUIRED_FIELDS=[]
     object=UserManager()
 
+class Tag(models.Model):
+    MAX_PER_POST = 5
+
+    name = models.CharField(max_length=30, unique=True)
+    slug = models.SlugField(max_length=40, unique=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def parse(cls, raw):
+        """'Django, ORM,django ' -> ['django', 'orm'] (lower-cased, de-duplicated, order kept)."""
+        names = []
+        for part in (raw or '').split(','):
+            name = ' '.join(part.split()).lower()[:30]
+            if name and slugify(name) and name not in names:
+                names.append(name)
+        return names
+
+    @classmethod
+    def get_or_create_many(cls, names):
+        tags = []
+        for name in names:
+            tag = cls.objects.filter(name=name).first()
+            if tag is None:
+                base, slug, n = slugify(name), slugify(name), 2
+                while cls.objects.filter(slug=slug).exists():
+                    slug, n = f'{base}-{n}', n + 1
+                tag = cls.objects.create(name=name, slug=slug)
+            tags.append(tag)
+        return tags
+
+
 class blog(models.Model):
 
     idb=models.CharField(max_length=10,default='ooo')
@@ -62,7 +99,7 @@ class blog(models.Model):
     author= models.ForeignKey(bloguser,on_delete=models.CASCADE)
     date_of_publish= models.DateTimeField()
     genre= models.CharField(max_length=30,null=False,validators=[MaxLengthValidator(20)])
-    tags= models.CharField(max_length=200,null=False,validators=[MaxLengthValidator(50)])
+    tags = models.ManyToManyField(Tag, related_name='blogs', blank=True)
     #image= models.ImageField()
     likes=models.IntegerField(validators=[MinValueValidator(0)])
     likeuser=models.TextField(default=',')

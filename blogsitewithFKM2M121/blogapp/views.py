@@ -1,7 +1,7 @@
-from django.shortcuts import render,redirect,HttpResponse,HttpResponseRedirect
+from django.shortcuts import render,redirect,HttpResponse,HttpResponseRedirect,get_object_or_404
 from django.urls import reverse
 from .forms import blogform,commentform,loginform,userform,edituserform,loginform,userform,searchform,smartform
-from .models import blog,comment,bloguser,smarttransaction
+from .models import blog,comment,bloguser,smarttransaction,Tag
 from django.contrib.auth import authenticate,login,logout,get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -238,8 +238,9 @@ def createblog(request):
     if form.is_valid():
         f1=form.cleaned_data
         b1=blog(idb=l,title=f1['title'],content=f1['content'],genre=f1['genre'],
-                tags=f1['tags'],author=au,date_of_publish=datetime.now(),likes=0,views=0)
+                author=au,date_of_publish=datetime.now(),likes=0,views=0)
         b1.save()
+        b1.tags.set(Tag.get_or_create_many(f1['tags']))
         b1=blog.objects.get(idb=l)
         c1=comment.objects.filter(idb=l)
         formc=commentform()
@@ -285,6 +286,13 @@ def genre(request,g):
     bpage = paginator.get_page(page_number)
     return render(request, 'bloglist.html',{'l':l,'t':g,'bl':bl,'bpage':bpage})
 
+def tagged(request,slug):
+    t=get_object_or_404(Tag,slug=slug)
+    bl=t.blogs.order_by('-date_of_publish')
+    paginator = Paginator(bl, 3)
+    bpage = paginator.get_page(request.GET.get('page'))
+    return render(request, 'bloglist.html',{'l':paginator.count,'t':'#'+t.name,'bl':bl,'bpage':bpage})
+
 def latest(request):
     bl=blog.objects.all().order_by('-date_of_publish')
     l=len(bl)
@@ -304,17 +312,13 @@ def popular(request):
     return render(request, 'bloglist.html',{'l':l,'t':'Popular','bl':bl,'bpage':bpage})
 
 def tag(request):
-    
-    t=str(request.POST.get('search'))
-    print(t)
-    t1=t.replace(',', ' ')
-    tl=t1.split(' ')
-    bl=[]
-    for i in tl:
-        bli=blog.objects.filter(tags__icontains=i)
-        bl+=list(bli)
-    bl=set(bl)
-    bl=list(bl)
+    from django.db.models import Q
+    t=(request.POST.get('search') or request.GET.get('q') or '').strip()
+    words=t.replace(',', ' ').split()
+    q=Q()
+    for i in words:
+        q|=Q(tags__name__icontains=i)|Q(title__icontains=i)
+    bl=list(blog.objects.filter(q).distinct().order_by('-date_of_publish')) if words else []
 
     paginator = Paginator(bl, 3)
     page_number = request.GET.get('page')

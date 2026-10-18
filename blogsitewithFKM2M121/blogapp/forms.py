@@ -1,14 +1,14 @@
 from django.forms import ModelForm,Form
 from django import forms 
-from .models import blog,comment,bloguser
+from .models import blog,comment,bloguser,Tag
 from django.forms.widgets import ClearableFileInput
 
 
 class blogform(ModelForm):
     class Meta:
         model=blog
-        fields=['title','content','genre','tags']
-        labels={'title':'Title: ','content':'','genre':'Genre: ','tags':'Tags: '}
+        fields=['title','content','genre']
+        labels={'title':'Title: ','content':'','genre':'Genre: '}
     title=forms.CharField(label='',
         widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':''})
     )
@@ -18,10 +18,17 @@ class blogform(ModelForm):
     genre=forms.CharField(label='',
         widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':''})
     )
-    tags=forms.CharField(label='',
-        widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':''})
+    tags=forms.CharField(label='',required=False,
+        help_text=f'Comma separated, up to {Tag.MAX_PER_POST}.',
+        widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'django, orm, testing'})
     )
-    
+
+    def clean_tags(self):
+        names = Tag.parse(self.cleaned_data['tags'])
+        if len(names) > Tag.MAX_PER_POST:
+            raise forms.ValidationError(f'Use at most {Tag.MAX_PER_POST} tags.')
+        return names
+
 
 class commentform(ModelForm):
     class Meta:
