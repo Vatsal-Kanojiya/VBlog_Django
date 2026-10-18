@@ -85,8 +85,15 @@ def clean_html(raw):
     return EMPTY_IMG.sub('', clean)
 
 
-def plain_text(clean):
-    return html.unescape(strip_tags(clean))
+BLOCK_END = re.compile(r'</(?:p|h2|h3|li|pre|blockquote)>|<br>')
+CODE = re.compile(r'<pre>.*?</pre>', re.S)
+
+
+def plain_text(clean, code=True):
+    """Visible text; blocks are separated by a space. code=False drops code blocks."""
+    if not code:
+        clean = CODE.sub(' ', clean)
+    return html.unescape(strip_tags(BLOCK_END.sub(lambda m: m.group(0) + ' ', clean)))
 
 
 def render_html(clean):

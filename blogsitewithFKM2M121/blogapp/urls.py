@@ -40,6 +40,7 @@ urlpatterns = [
     path('newblog/', views.newblog,name='newblog'),
     path('createblog/', views.createblog,name='createblog'),
     path('blog/<str:b>/edit/', views.editblog,name='editblog'),
+    path('upload-image/', views.upload_image,name='upload_image'),
 
 
 

@@ -1,9 +1,15 @@
-from django.test import TestCase
+import shutil
+import tempfile
+from io import BytesIO
+
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
+from PIL import Image
 
-from . import richtext
-from .models import Tag, blog, bloguser
+from . import images, richtext
+from .models import PostImage, Tag, blog, bloguser
 
 BODY = 'word ' * 700  # content needs 3000+ characters
 
@@ -106,6 +112,10 @@ class RichTextTests(TestCase):
         clean = richtext.clean_html('one <b>\ntwo\n\nthree')
         self.assertEqual(clean, '<p>one &lt;b&gt;<br>two</p><p>three</p>')
 
+    def test_excerpt_separates_blocks_and_skips_code(self):
+        post = blog(content='<h2>Title</h2><p>First.</p><pre><code>x = 1</code></pre><p>Second.</p>')
+        self.assertEqual(post.excerpt, 'Title First. Second.')
+
     def test_code_blocks_are_highlighted_and_stay_escaped(self):
         html = richtext.render_html(richtext.clean_html(
             '<pre><code class="language-python">print("&lt;script&gt;")</code></pre>'))
@@ -170,3 +180,93 @@ class PostEditorTests(TestCase):
         self.client.get(reverse('blog', args=['1']))
         self.post.refresh_from_db()
         self.assertEqual(self.post.views, 1)
+
+
+MEDIA = tempfile.mkdtemp()
+
+
+def image_file(name='photo.jpg', fmt='JPEG', size=(2400, 1200), exif=False):
+    buf = BytesIO()
+    img = Image.new('RGB', size, (200, 80, 40))
+    extra = {}
+    if exif:
+        data = Image.Exif()
+        data[0x010F] = 'PhoneMaker'           # Make
+        data[0x8825] = {2: (12.0, 58.0, 0.0)}  # GPS info
+        extra['exif'] = data
+    img.save(buf, fmt, **extra)
+    return SimpleUploadedFile(name, buf.getvalue(), content_type=f'image/{fmt.lower()}')
+
+
+@override_settings(MEDIA_ROOT=MEDIA)
+class ImageTests(TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA, ignore_errors=True)
+        super().tearDownClass()
+
+    def setUp(self):
+        self.user = make_user()
+        self.client.force_login(self.user)
+
+    def test_process_shrinks_and_strips_metadata(self):
+        clean = images.process(image_file(exif=True))
+        with Image.open(clean) as img:
+            self.assertEqual(max(img.size), images.MAX_EDGE)
+            self.assertEqual(len(img.getexif()), 0)
+        self.assertTrue(clean.name.endswith('.jpg'))
+        self.assertNotIn('photo', clean.name)
+
+    def test_process_rejects_non_images(self):
+        fake = SimpleUploadedFile('x.png', b'<?php echo 1; ?>', content_type='image/png')
+        with self.assertRaisesMessage(Exception, 'not a readable image'):
+            images.process(fake)
+
+    def test_process_rejects_other_formats(self):
+        with self.assertRaisesMessage(Exception, 'JPEG, PNG, WebP or GIF'):
+            images.process(image_file('a.bmp', fmt='BMP', size=(10, 10)))
+
+    def test_upload_returns_url_the_sanitiser_keeps(self):
+        response = self.client.post(reverse('upload_image'), {'image': image_file()})
+        self.assertEqual(response.status_code, 201)
+        url = response.json()['url']
+        self.assertTrue(url.startswith('/mediaM/posts/inline/'))
+        self.assertIn(url, richtext.clean_html(f'<p>x</p><img src="{url}" alt="a">'))
+        self.assertEqual(PostImage.objects.get().owner, self.user)
+
+    def test_upload_needs_login(self):
+        self.client.logout()
+        response = self.client.post(reverse('upload_image'), {'image': image_file()})
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(PostImage.objects.exists())
+
+    def test_upload_needs_csrf_token(self):
+        client = self.client_class(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        self.assertEqual(client.post(reverse('upload_image'), {'image': image_file()}).status_code, 403)
+
+    def test_upload_rejects_bad_file_with_message(self):
+        response = self.client.post(reverse('upload_image'), {
+            'image': SimpleUploadedFile('x.jpg', b'nope', content_type='image/jpeg')})
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('not a readable image', response.json()['error'])
+
+    def test_daily_upload_limit(self):
+        for _ in range(images.DAILY_UPLOADS):
+            PostImage.objects.create(owner=self.user, image='posts/inline/x.jpg')
+        response = self.client.post(reverse('upload_image'), {'image': image_file()})
+        self.assertEqual(response.status_code, 429)
+
+    def test_get_is_not_allowed(self):
+        self.assertEqual(self.client.get(reverse('upload_image')).status_code, 405)
+
+    def test_cover_is_processed_and_shown(self):
+        response = self.client.post(reverse('createblog'), {
+            'title': 'With a cover', 'content': BODY, 'genre': 'Tech', 'tags': '',
+            'cover': image_file(exif=True)})
+        post = blog.objects.get(title='With a cover')
+        self.assertRedirects(response, reverse('blog', args=[post.idb]))
+        self.assertTrue(post.cover.name.startswith('posts/covers/'))
+        with Image.open(post.cover.path) as img:
+            self.assertEqual(len(img.getexif()), 0)
+        self.assertContains(self.client.get(reverse('blog', args=[post.idb])), 'class="post-cover"')

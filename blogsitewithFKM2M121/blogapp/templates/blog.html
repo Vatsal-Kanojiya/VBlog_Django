@@ -17,6 +17,7 @@
 <div >   
 
     <section >
+        {% if b1.cover %}<img class="post-cover" src="{{ b1.cover.url }}" alt="">{% endif %}
         <article class="post-body">
             {{ b1.content_html|safe }}
         </article>

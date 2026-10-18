@@ -2,13 +2,13 @@ from django.forms import ModelForm,Form
 from django import forms 
 from .models import blog,comment,bloguser,Tag
 from django.forms.widgets import ClearableFileInput
-from . import richtext
+from . import images, richtext
 
 
 class blogform(ModelForm):
     class Meta:
         model=blog
-        fields=['title','content','genre']
+        fields=['title','cover','content','genre']
         labels={'title':'Title: ','content':'','genre':'Genre: '}
     title=forms.CharField(label='',
         widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':''})
@@ -23,6 +23,16 @@ class blogform(ModelForm):
         help_text=f'Comma separated, up to {Tag.MAX_PER_POST}.',
         widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'django, orm, testing'})
     )
+
+    cover=forms.ImageField(label='',required=False,
+        widget=ClearableFileInput(attrs={'class':'form-control','accept':'image/jpeg,image/png,image/webp,image/gif'})
+    )
+
+    def clean_cover(self):
+        cover = self.cleaned_data['cover']
+        if cover and hasattr(cover, 'content_type'):  # a new upload, not the existing file
+            return images.process(cover)
+        return cover
 
     def clean_content(self):
         clean = richtext.clean_html(self.cleaned_data['content'])

@@ -98,6 +98,7 @@ class blog(models.Model):
     title= models.CharField(max_length=50,null=False,validators=[MinLengthValidator(5),MaxLengthValidator(50)])
     content= models.TextField(null=False)  # cleaned editor HTML, the source for editing
     content_html= models.TextField(blank=True, editable=False)  # content with highlighted code, for reading
+    cover= models.ImageField(upload_to='posts/covers/%Y/%m/', blank=True)
     author= models.ForeignKey(bloguser,on_delete=models.CASCADE)
     date_of_publish= models.DateTimeField()
     genre= models.CharField(max_length=30,null=False,validators=[MaxLengthValidator(20)])
@@ -117,9 +118,16 @@ class blog(models.Model):
 
     @property
     def excerpt(self):
-        text = ' '.join(richtext.plain_text(self.content).split())
+        text = ' '.join(richtext.plain_text(self.content, code=False).split())
         return text if len(text) <= 220 else text[:220].rsplit(' ', 1)[0] + '…'
 
+
+
+class PostImage(models.Model):
+    """An image uploaded from the editor and placed inside a post body."""
+    owner = models.ForeignKey(bloguser, on_delete=models.CASCADE, related_name='post_images')
+    image = models.ImageField(upload_to='posts/inline/%Y/%m/')
+    created = models.DateTimeField(auto_now_add=True)
 
 
 class comment(models.Model):

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import blog,comment,bloguser,smarttransaction,Tag
+from .models import blog,comment,bloguser,smarttransaction,Tag,PostImage
 # Register your models here.
 
 # class BlogusersimpleAdmin(admin.ModelAdmin):
@@ -47,3 +47,8 @@ class TagAdmin(admin.ModelAdmin):
     prepopulated_fields={'slug':('name',)}
     list_display=('name','slug')
     search_fields=('name',)
+
+
+@admin.register(PostImage)
+class PostImageAdmin(admin.ModelAdmin):
+    list_display=('id','owner','image','created')

@@ -1,7 +1,8 @@
 from django.shortcuts import render,redirect,HttpResponse,HttpResponseRedirect,get_object_or_404
 from django.urls import reverse
 from .forms import blogform,commentform,loginform,userform,edituserform,loginform,userform,searchform,smartform
-from .models import blog,comment,bloguser,smarttransaction,Tag
+from .models import blog,comment,bloguser,smarttransaction,Tag,PostImage
+from . import images
 from django.contrib.auth import authenticate,login,logout,get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -13,7 +14,11 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from datetime import timedelta
 from django.db.models import F
+from django.http import JsonResponse
+from django.core.exceptions import ValidationError
+from django.views.decorators.http import require_POST
 from .richtext import LANGUAGES
 
 
@@ -237,10 +242,10 @@ def newblog(request):
 def createblog(request):
     if request.method!='POST':
         return redirect('newblog')
-    form=blogform(request.POST)
+    form=blogform(request.POST,request.FILES)
     if form.is_valid():
         f1=form.cleaned_data
-        b1=blog.objects.create(title=f1['title'],content=f1['content'],genre=f1['genre'],
+        b1=blog.objects.create(title=f1['title'],content=f1['content'],genre=f1['genre'],cover=f1['cover'] or '',
                 author=request.user,date_of_publish=timezone.now(),likes=0,views=0)
         b1.idb=str(b1.pk)
         b1.save(update_fields=['idb'])
@@ -255,7 +260,7 @@ def editblog(request,b):
     if b1.author_id!=request.user.pk:
         raise PermissionDenied
     if request.method=='POST':
-        form=blogform(request.POST,instance=b1)
+        form=blogform(request.POST,request.FILES,instance=b1)
         if form.is_valid():
             form.save()
             b1.tags.set(Tag.get_or_create_many(form.cleaned_data['tags']))
@@ -263,6 +268,25 @@ def editblog(request,b):
     else:
         form=blogform(instance=b1,initial={'tags':', '.join(t.name for t in b1.tags.all())})
     return render(request,'newblog.html',{'form':form,'languages':LANGUAGES,'b1':b1})
+
+
+@require_POST
+def upload_image(request):
+    """Editor image upload: returns {"url": ...} for the editor to insert."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Log in to upload images.'}, status=403)
+    since = timezone.now() - timedelta(days=1)
+    if PostImage.objects.filter(owner=request.user, created__gte=since).count() >= images.DAILY_UPLOADS:
+        return JsonResponse({'error': f'You can upload {images.DAILY_UPLOADS} images a day.'}, status=429)
+    upload = request.FILES.get('image')
+    if upload is None:
+        return JsonResponse({'error': 'No image received.'}, status=400)
+    try:
+        clean = images.process(upload)
+    except ValidationError as e:
+        return JsonResponse({'error': e.messages[0]}, status=400)
+    img = PostImage.objects.create(owner=request.user, image=clean)
+    return JsonResponse({'url': img.image.url}, status=201)
 
 
 @login_required(login_url='userlogin')

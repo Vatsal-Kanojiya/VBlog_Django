@@ -16,11 +16,11 @@
         <div>
         <a href="{% url 'blog' i.idb %}"  style="text-decoration: none;">
             <div class="card" >
-                <!-- <img src="..." class="card-img-top" alt="..."> -->
+                {% if i.cover %}<img src="{{ i.cover.url }}" class="card-img-top" alt="" loading="lazy" style="width:20rem;height:160px;object-fit:cover;">{% endif %}
                 <div class="card-body" style="width: 20rem;height: 400px;">
                   <div style="height: 50px;"><h5 class="card-title">{{i.title}}</h5></div>
                   
-                  <p class="card-text" style="text-align: right;font-size: small;"><i>--{{i.author.first_name}} {{i.author.first_name}}</i></p>
+                  <p class="card-text" style="text-align: right;font-size: small;"><i>--{{i.author.first_name}} {{i.author.last_name}}</i></p>
                   
                   <div style="overflow: hidden;height: 75%;text-align: justify;text-indent: 40px;">
                   <p class="card-text" style="font-size: smaller;">{{i.excerpt}}</p>

@@ -9,7 +9,7 @@
 <div style="padding-left: 8%;padding-right: 8%;">
     <br><br>
     <h1 class="mb-4">{% if b1 %}Edit post{% else %}New post{% endif %}</h1>
-    <form method="POST" action="{% if b1 %}{% url 'editblog' b1.idb %}{% else %}{% url 'createblog' %}{% endif %}">
+    <form method="POST" enctype="multipart/form-data" action="{% if b1 %}{% url 'editblog' b1.idb %}{% else %}{% url 'createblog' %}{% endif %}">
         {% csrf_token %}
         {{ form.non_field_errors }}
 
@@ -21,7 +21,16 @@
             </div>
         </div>
 
-        <div class="mb-2" data-editor>
+        <div class="row mb-4" style="justify-content: center;align-items: center;">
+            <label for="{{ form.cover.id_for_label }}" class="col-sm-1 col-form-label">Cover</label>
+            <div class="col-sm-7 text-start">
+                {{form.cover}}
+                <small class="text-secondary">Optional. JPEG, PNG, WebP or GIF, up to 5 MB.</small>
+                {{ form.cover.errors }}
+            </div>
+        </div>
+
+        <div class="mb-2" data-editor data-upload-url="{% url 'upload_image' %}">
             <div class="editor-toolbar" role="toolbar" aria-label="Formatting" hidden>
                 <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
                 <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
@@ -37,6 +46,7 @@
                 <span class="sep"></span>
                 <button type="button" data-cmd="link" title="Link">Link</button>
                 <button type="button" data-cmd="code" title="Inline code">`code`</button>
+                <button type="button" data-cmd="image" title="Insert image (or paste / drop one)">🖼 Image</button>
                 <button type="button" data-cmd="codeBlock" title="Code block">{ } Code block</button>
                 <select data-language aria-label="Code block language">
                     {% for value, label in languages.items %}<option value="{{ value }}"{% if value == 'python' %} selected{% endif %}>{{ label }}</option>{% endfor %}
@@ -46,6 +56,7 @@
                 <button type="button" data-cmd="redo" title="Redo (Ctrl+Shift+Z)">↷</button>
             </div>
             <div class="editor-mount"></div>
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-image-input hidden>
             {{form.content}}
         </div>
         <div class="editor-status mb-1" aria-live="polite"></div>
